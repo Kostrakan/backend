@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const RoomSchema = new mongoose.Schema({
   kosId: {
     type: mongoose.Schema.Types.ObjectId,
-        ref: 'Kos',
-        required: true
+    ref: "Kos",
   },
   namaKamar: {
     type: String,
@@ -33,7 +32,7 @@ const RoomSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
 });
 
-module.exports = mongoose.model('Room', RoomSchema);
+module.exports = mongoose.model("Room", RoomSchema);

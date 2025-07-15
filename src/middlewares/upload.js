@@ -2,18 +2,16 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Membuat folder jika tidak ada
 const createFolderIfNotExist = (folder) => {
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder, { recursive: true });
     }
 };
 
-// Konfigurasi storage multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let folder = '';
-        if (file.fieldname === 'kos') { // Pastikan ini adalah nama field yang sesuai di form
+        if (file.fieldname === 'kos') {
             folder = 'uploads/kos/';
         } else if (file.fieldname === 'kamar') {
             folder = 'uploads/kamar/';
@@ -28,7 +26,6 @@ const storage = multer.diskStorage({
     }
 });
 
-// Validasi jenis file
 const fileFilter = (req, file, cb) => {
     if (file.fieldname === 'kos' || file.fieldname === 'kamar') {
         if (
@@ -45,12 +42,11 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Inisialisasi multer
 const upload = multer({
     storage,
     fileFilter,
     limits: {
-        fileSize: 10 * 1024 * 1024 // Maksimal ukuran file 10MB
+        fileSize: 10 * 1024 * 1024
     }
 });
 

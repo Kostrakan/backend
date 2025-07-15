@@ -1,15 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const KosSchema = new mongoose.Schema({
   namaKos: {
     type: String,
     required: true,
   },
-  namaPemilik: {
-    type: String,
-    required: true,
-  },
-  NoHP: {
+  tipeKos: {
     type: String,
     required: true,
   },
@@ -43,21 +39,32 @@ const KosSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  userid: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   rooms: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Room',
-    }
+      ref: "Room",
+    },
   ],
+  user: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  favorites: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Favorites",
+    },
+  ],
+  totalFavorite: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
 });
 
-module.exports = mongoose.model('Kos', KosSchema);
+module.exports = mongoose.model("Kos", KosSchema);

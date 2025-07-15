@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const UserSchema = new mongoose.Schema({
   namalengkap: {
@@ -18,8 +18,8 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin','pemilik', 'penyewa'],
-    default: 'penyewa',
+    enum: ["admin", "pemilik", "penyewa"],
+    default: "penyewa",
   },
   password: {
     type: String,
@@ -28,12 +28,12 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
 });
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre("save", async function (next) {
   const user = this;
-  if (!user.isModified('password')) return next();
+  if (!user.isModified("password")) return next();
 
   try {
     const salt = await bcrypt.genSalt(10);
@@ -48,4 +48,4 @@ UserSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

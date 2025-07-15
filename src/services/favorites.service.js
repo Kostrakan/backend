@@ -1,20 +1,47 @@
+const Favorite = require("../models/favorites.model");
+const Kos = require("../models/kos.model");
 
-// src/services/favorites.service.js
-const Favorite = require('../models/favorites.model');
-
-exports.addFavorite = async (userId, kosId) => {
+exports.toggleFavorite = async (userId, kosId) => {
   const existing = await Favorite.findOne({ user: userId, kos: kosId });
-  if (existing) throw new Error('Kos already in favorites');
+  console.log(existing != null);
+  if (existing) {
+    await Favorite.deleteOne({ _id: existing._id });
 
-  const favorite = new Favorite({ user: userId, kos: kosId });
-  return await favorite.save();
-};
+    const data = await Kos.findByIdAndUpdate(kosId, {
+      $pull: { favorites: existing._id },
+      $inc: { totalFavorite: -1 },
+    });
 
-exports.removeFavorite = async (userId, kosId) => {
-  const result = await Favorite.findOneAndDelete({ user: userId, kos: kosId });
-  if (!result) throw new Error('Favorite not found');
+    return { status: "removed", message: "Favorite removed successfully" };
+  } else {
+    const favorite = new Favorite({ user: userId, kos: kosId });
+    await favorite.save();
+
+    const data = await Kos.findByIdAndUpdate(kosId, {
+      $push: { favorites: favorite._id },
+      $inc: { totalFavorite: 1 },
+    });
+
+    return {
+      status: "added",
+      message: "Favorite added successfully",
+      data: {
+        _id: favorite._id,
+        user: favorite.user,
+        kos: favorite.kos,
+      },
+    };
+  }
 };
 
 exports.getFavoritesByUser = async (userId) => {
-  return await Favorite.find({ user: userId }).populate('kos');
+  const favorites = await Favorite.find({ user: userId }).populate({
+    path: "kos",
+    model: "Kos",
+    populate: [
+      { path: "rooms", model: "Room" },
+      { path: "user", model: "User" },
+    ],
+  });
+  return favorites.map((fav) => fav.kos);
 };

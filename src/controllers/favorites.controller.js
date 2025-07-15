@@ -1,20 +1,11 @@
-const favoriteService = require('../services/favorites.service');
+const favoriteService = require("../services/favorites.service");
 
-exports.addFavorite = async (req, res) => {
+exports.toggleFavorite = async (req, res) => {
   try {
     const { userId, kosId } = req.body;
-    const favorite = await favoriteService.addFavorite(userId, kosId);
-    res.status(201).json(favorite);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-exports.removeFavorite = async (req, res) => {
-  try {
-    const { userId, kosId } = req.body;
-    await favoriteService.removeFavorite(userId, kosId);
-    res.status(200).json({ message: 'Favorite removed successfully' });
+    const result = await favoriteService.toggleFavorite(userId, kosId);
+    console.log("fav:", result);
+    res.status(200).json(result);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -23,9 +14,15 @@ exports.removeFavorite = async (req, res) => {
 exports.getFavoritesByUser = async (req, res) => {
   try {
     const { userId } = req.params;
+    console.log("Received userId:", userId);
+
     const favorites = await favoriteService.getFavoritesByUser(userId);
+
+    console.log("Favorites result:", favorites);
+
     res.status(200).json(favorites);
   } catch (error) {
+    console.error("Error in getFavoritesByUser:", error);
     res.status(400).json({ message: error.message });
   }
 };

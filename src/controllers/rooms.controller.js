@@ -1,4 +1,4 @@
-const RoomService = require('../services/rooms.service');
+const RoomService = require("../services/rooms.service");
 
 exports.getAllRooms = async (req, res) => {
   try {
@@ -6,6 +6,23 @@ exports.getAllRooms = async (req, res) => {
     res.status(200).json(rooms);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllRoomById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const room = await RoomService.getRoomById(id);
+
+    if (!room) {
+      return res.status(404).json({ message: "Kamar tidak ditemukan." });
+    }
+
+    res.status(200).json(room);
+  } catch (error) {
+    console.error("Error getAllRoomById:", error);
+    res.status(500).json({ message: "Terjadi kesalahan server." });
   }
 };
 
@@ -24,52 +41,52 @@ exports.createRoom = async (req, res) => {
     const kamarFiles = req.files?.kamar;
 
     if (!kamarFiles || kamarFiles.length === 0) {
-      return res.status(400).json({ success: false, message: 'Gambar tidak ditemukan' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Gambar tidak ditemukan" });
     }
-    
-    const filePaths = kamarFiles.map(file => file.path);
 
-      const data = ({
-          namaKamar: req.body.namaKamar,
-          tipe: req.body.tipe,
-          harga: req.body.harga,
-          fasilitas: Array.isArray(req.body.fasilitas)
-          ? req.body.fasilitas
-          : [req.body.fasilitas],
-          ketersediaan: req.body.ketersediaan,
-          gambar: filePaths,
-          kosId: req.body.kosId
-      });
+    const filePaths = kamarFiles.map((file) => file.path);
 
-      const kamar = await RoomService.createRoom(data)
-      res.status(201).json(kamar);
+    const data = {
+      namaKamar: req.body.namaKamar,
+      tipe: req.body.tipe,
+      harga: req.body.harga,
+      fasilitas: Array.isArray(req.body.fasilitas)
+        ? req.body.fasilitas
+        : [req.body.fasilitas],
+      ketersediaan: req.body.ketersediaan,
+      gambar: filePaths,
+      kosId: req.body.kosId,
+    };
+
+    const kamar = await RoomService.createRoom(data);
+    res.status(201).json(kamar);
   } catch (error) {
-      res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
 exports.updateRoom = async (req, res) => {
   try {
-    const kamarFiles = req.files?.kamar;
+    const kamarFiles = req.files?.kamar || [];
+    const filePaths = kamarFiles.map((file) => file.path);
+    const id = req.params.id;
 
-    if (!kamarFiles || kamarFiles.length === 0) {
-      return res.status(400).json({ success: false, message: 'Gambar tidak ditemukan' });
-    }
-    
-    const filePaths = kamarFiles.map(file => file.path);
-    const id = req.params.id
-    const data = ({
+    const data = {
       namaKamar: req.body.namaKamar,
       tipe: req.body.tipe,
       harga: req.body.harga,
       fasilitas: Array.isArray(req.body.fasilitas)
-      ? req.body.fasilitas
-      : [req.body.fasilitas],
-      ketersediaan: req.body.ketersediaan,
-      gambar: filePaths
-  });
-  const kamar = await RoomService.updateRoom(id,data)
-      res.status(201).json(kamar);
+        ? req.body.fasilitas
+        : [req.body.fasilitas],
+      ketersediaan: req.body.ketersediaan === "true",
+      gambar: filePaths,
+      gambarLama: req.body.gambarLama || [],
+    };
+
+    const kamar = await RoomService.updateRoom(id, data);
+    res.status(201).json(kamar);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -78,13 +95,10 @@ exports.updateRoom = async (req, res) => {
 exports.deleteRoom = async (req, res) => {
   try {
     const kamarId = req.params.id;
-    
+
     await RoomService.deleteRoom(kamarId);
-    res.status(200).json({ message: 'Room deleted successfully' });
+    res.status(200).json({ message: "Room deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
-
-
